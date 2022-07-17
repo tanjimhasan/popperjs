@@ -52,6 +52,7 @@ export interface Props<RT extends ReferenceType = ReferenceType> {
   endGuard?: boolean;
   returnFocus?: boolean;
   modal?: boolean;
+  closeOnFocusOut?: boolean;
 }
 
 /**
@@ -67,6 +68,7 @@ export function FloatingFocusManager<RT extends ReferenceType = ReferenceType>({
   initialFocus = 0,
   returnFocus = true,
   modal = true,
+  closeOnFocusOut = true,
 }: Props<RT>): JSX.Element {
   const orderRef = useLatestRef(order);
   const onOpenChangeRef = useLatestRef(onOpenChange);
@@ -199,8 +201,10 @@ export function FloatingFocusManager<RT extends ReferenceType = ReferenceType>({
     const reference = refs.domReference.current;
 
     if (floating && isHTMLElement(reference)) {
-      !modal && floating.addEventListener('focusout', onFocusOut);
-      !modal && reference.addEventListener('focusout', onFocusOut);
+      if (closeOnFocusOut && !modal) {
+        floating.addEventListener('focusout', onFocusOut);
+        reference.addEventListener('focusout', onFocusOut);
+      }
 
       let cleanup: () => void;
       if (modal) {
@@ -212,8 +216,10 @@ export function FloatingFocusManager<RT extends ReferenceType = ReferenceType>({
       }
 
       return () => {
-        !modal && floating.removeEventListener('focusout', onFocusOut);
-        !modal && reference.removeEventListener('focusout', onFocusOut);
+        if (closeOnFocusOut && !modal) {
+          !modal && floating.removeEventListener('focusout', onFocusOut);
+          !modal && reference.removeEventListener('focusout', onFocusOut);
+        }
         cleanup?.();
       };
     }
@@ -226,6 +232,7 @@ export function FloatingFocusManager<RT extends ReferenceType = ReferenceType>({
     dataRef,
     getTabbableElements,
     refs,
+    closeOnFocusOut,
   ]);
 
   React.useEffect(() => {
