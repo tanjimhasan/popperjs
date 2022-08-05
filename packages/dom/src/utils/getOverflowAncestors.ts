@@ -4,7 +4,7 @@ import {isOverflowElement} from './is';
 
 export function getOverflowAncestors(
   node: Node,
-  list: Array<Element | Window> = []
+  list: Array<Element | Window | VisualViewport> = []
 ): Array<Element | Window | VisualViewport> {
   const scrollableAncestor = getNearestOverflowAncestor(node);
   const isBody = scrollableAncestor === node.ownerDocument?.body;
@@ -19,6 +19,5 @@ export function getOverflowAncestors(
 
   return isBody
     ? updatedList
-    : // @ts-ignore: isBody tells us target will be an HTMLElement here
-      updatedList.concat(getOverflowAncestors(target));
+    : updatedList.concat(getOverflowAncestors(target));
 }
